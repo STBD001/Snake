@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import colorchooser
 import random
 
 GAME_WIDTH = 1000
@@ -21,7 +22,7 @@ class Snake:
             self.coordinates.append([0, 0])
 
         for x, y in self.coordinates:
-            square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR, tag="snake")
+            square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=snake_color, tag="snake")
             self.squares.append(square)
 
 class Food:
@@ -31,7 +32,7 @@ class Food:
 
         self.coordinates = [x, y]
 
-        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=FOOD_COLOR, tag="food")
+        canvas.create_oval(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=food_color, tag="food")
 
 def next_turn(snake, food):
 
@@ -48,7 +49,7 @@ def next_turn(snake, food):
 
     snake.coordinates.insert(0, (x, y))
 
-    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
+    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=snake_color)
 
     snake.squares.insert(0, square)
 
@@ -100,18 +101,37 @@ def check_collisions(snake):
 
     if x < 0 or x >=GAME_WIDTH:
         return True
-    elif y<0 or y >=GAME_WIDTH:
+    elif y<0 or y >=GAME_HEIGHT:
         return True
 
     for body_part in snake.coordinates[1:]:
         if x == body_part[0] and y == body_part[1]:
             return True
     return False
+
 def game_over():
 
     canvas.delete(ALL)
     canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=('consolas', 70), text="GAME OVER", fill="red", tag="gameover")
 
+def choose_snake_color():
+    global snake_color
+    color_code = colorchooser.askcolor(title="Choose Snake Color")
+    if color_code[1] is not None:
+        snake_color = color_code[1]
+
+def choose_food_color():
+    global food_color
+    color_code = colorchooser.askcolor(title="Choose Food Color")
+    if color_code[1] is not None:
+        food_color = color_code[1]
+
+def start_game():
+    global snake, food
+    setup_frame.pack_forget()
+    snake = Snake()
+    food = Food()
+    next_turn(snake, food)
 
 window = Tk()
 window.title("Snake game")
@@ -119,6 +139,20 @@ window.resizable(False, False)
 
 score = 0
 direction = 'down'
+snake_color = SNAKE_COLOR
+food_color = FOOD_COLOR
+
+setup_frame = Frame(window)
+setup_frame.pack()
+
+snake_color_button = Button(setup_frame, text="Choose Snake Color", command=choose_snake_color)
+snake_color_button.grid(row=0, column=0, padx=10, pady=10)
+
+food_color_button = Button(setup_frame, text="Choose Food Color", command=choose_food_color)
+food_color_button.grid(row=0, column=1, padx=10, pady=10)
+
+start_button = Button(setup_frame, text="Start Game", command=start_game)
+start_button.grid(row=1, column=0, columnspan=2, pady=10)
 
 label = Label(window, text="Score:{}".format(score), font=('consolas', 40))
 label.pack()
@@ -142,10 +176,5 @@ window.bind('<Left>', lambda event: change_direction('left'))
 window.bind('<Right>', lambda event: change_direction('right'))
 window.bind('<Up>', lambda event: change_direction('up'))
 window.bind('<Down>', lambda event: change_direction('down'))
-
-snake = Snake()
-food = Food()
-
-next_turn(snake, food)
 
 window.mainloop()
