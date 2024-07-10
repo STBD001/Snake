@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import colorchooser
+from tkinter import colorchooser, simpledialog
 import random
 
 GAME_WIDTH = 1000
@@ -57,7 +57,7 @@ def next_turn(snake, food):
 
         global score
 
-        score+=1
+        score += 1
 
         label.config(text="Score:{}".format(score))
 
@@ -97,11 +97,11 @@ def change_direction(new_direction):
 
 def check_collisions(snake):
 
-    x, y=snake.coordinates[0]
+    x, y = snake.coordinates[0]
 
-    if x < 0 or x >=GAME_WIDTH:
+    if x < 0 or x >= GAME_WIDTH:
         return True
-    elif y<0 or y >=GAME_HEIGHT:
+    elif y < 0 or y >= GAME_HEIGHT:
         return True
 
     for body_part in snake.coordinates[1:]:
@@ -110,9 +110,9 @@ def check_collisions(snake):
     return False
 
 def game_over():
-
     canvas.delete(ALL)
-    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2, font=('consolas', 70), text="GAME OVER", fill="red", tag="gameover")
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2 - 30, font=('consolas', 70), text=f"GAME OVER {nickname}", fill="red", tag="gameover")
+    canvas.create_text(canvas.winfo_width()/2, canvas.winfo_height()/2 + 30, font=('consolas', 70), text=f"YOUR SCORE IS {score}", fill="red", tag="gameover")
 
 def choose_snake_color():
     global snake_color
@@ -126,8 +126,15 @@ def choose_food_color():
     if color_code[1] is not None:
         food_color = color_code[1]
 
+def ask_nickname():
+    global nickname
+    nickname = simpledialog.askstring("Nickname", "Please enter your nickname:")
+    if not nickname:
+        nickname = "Player"
+
 def start_game():
     global snake, food
+    ask_nickname()
     setup_frame.pack_forget()
     snake = Snake()
     food = Food()
@@ -141,6 +148,7 @@ score = 0
 direction = 'down'
 snake_color = SNAKE_COLOR
 food_color = FOOD_COLOR
+nickname = "Player"
 
 setup_frame = Frame(window)
 setup_frame.pack()
